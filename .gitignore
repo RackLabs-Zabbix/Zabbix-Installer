@@ -1,0 +1,7 @@
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+*.exe
+*.exe_makensisw_temp
