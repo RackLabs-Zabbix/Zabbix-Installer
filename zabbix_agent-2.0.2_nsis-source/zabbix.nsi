@@ -136,7 +136,7 @@ Section "Zabbix Agent (required)" SEC01
   ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'EnableRemoteCommands=' '$RMTCMD' $OUT
   ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'LogFile=' '$INSTDIR\Zabbix_agentd.log' $OUT
   ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'ServerActive=' '$SERVERACTIVE' $OUT
-  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Server=' '$SERVERACTIVE' $OUT
+  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Server=' '$SERVERACTIVE' $OUT
   ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'UserParameter = system.discovery[*],cscript "' '$INSTDIR\zabbix_win_system_discovery.vbs" //Nologo "$$1"' $OUT
   s32:
       
