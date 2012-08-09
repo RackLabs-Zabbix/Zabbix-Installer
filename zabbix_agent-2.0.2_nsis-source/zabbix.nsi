@@ -119,7 +119,7 @@ Section "Zabbix Agent (required)" SEC01
     File ".\Installer\win64\zabbix_agentd.exe"
   s1:
   File ".\Installer\zabbix_agentd.conf"
-  ; Zabbix docs & license
+  ; Zabbix scripts, docs & license
   File ".\Installer\docs\*"
   File ".\Installer\script\*"
   copyfiles /SILENT "$EXEDIR\scripts\*.*" "$INSTDIR"
@@ -345,6 +345,7 @@ Section "Uninstall"
   Delete "$INSTDIR\zabbix_agentd.exe"
   Delete "$INSTDIR\zabbix_get.exe"
   Delete "$INSTDIR\zabbix_sender.exe"
+  Delete "$INSTDIR\zabbix_win_system_discovery.vbs"
   Delete "$INSTDIR\uninstall.exe"
   ${un.DirState} "$INSTDIR" $R0
   strcmp $R0 '0' 0 +2
