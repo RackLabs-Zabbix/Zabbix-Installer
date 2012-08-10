@@ -78,7 +78,7 @@ Var SERVERACTIVE
 ;Pages
 
   !insertmacro MUI_PAGE_WELCOME
-  !insertmacro MUI_PAGE_LICENSE ".\Installer\docs\LICENSE.txt"
+  ;!insertmacro MUI_PAGE_LICENSE ".\Installer\docs\LICENSE.txt"
   !insertmacro MUI_PAGE_COMPONENTS
   ; Custom page to set some options in config file
   Page custom ConfigOptions
@@ -124,19 +124,18 @@ Section "Zabbix Agent (required)" SEC01
   File ".\Installer\script\*"
   copyfiles /SILENT "$EXEDIR\scripts\*.*" "$INSTDIR"
   ; Read user input options
-  ;!insertmacro MUI_INSTALLOPTIONS_READ $SERVER "ihm.ini" "Field 3" "State"
-  ;!insertmacro MUI_INSTALLOPTIONS_READ $HOST   "ihm.ini" "Field 8" "State"
-  ;!insertmacro MUI_INSTALLOPTIONS_READ $LPORT   "ihm.ini" "Field 10" "State"
-  ;!insertmacro MUI_INSTALLOPTIONS_READ $RMTCMD "ihm.ini" "Field 11" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $SERVERACTIVE "ihm.ini" "Field 2" "State"  
+  !insertmacro MUI_INSTALLOPTIONS_READ $SERVER "ihm.ini" "Field 3" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $HOST   "ihm.ini" "Field 8" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $LPORT   "ihm.ini" "Field 10" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $RMTCMD "ihm.ini" "Field 11" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $SERVERACTIVE "ihm.ini" "Field 13" "State"  
   ; Puts some info based on host in config file
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Server=' '$SERVER' $OUT
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Hostname=' '$HOST' $OUT
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'ListenPort=' '$LPORT' $OUT                                                                     
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'EnableRemoteCommands=' '$RMTCMD' $OUT
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'LogFile=' '$INSTDIR\Zabbix_agentd.log' $OUT
+  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Server=' '$SERVER' $OUT
+  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Hostname=' '$HOST' $OUT
+  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'ListenPort=' '$LPORT' $OUT                                                                     
+  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'EnableRemoteCommands=' '$RMTCMD' $OUT
+  ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'LogFile=' '$INSTDIR\Zabbix_agentd.log' $OUT
   ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'ServerActive=' '$SERVERACTIVE' $OUT
-  ;${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'Server=' '$SERVERACTIVE' $OUT
   ${ConfigWrite} '$INSTDIR\zabbix_agentd.conf' 'UserParameter = system.discovery[*],cscript "' '$INSTDIR\zabbix_win_system_discovery.vbs" //Nologo "$$1"' $OUT
   s32:
       
@@ -191,8 +190,6 @@ Section "Zabbix get (optional)" SEC03
     File ".\Installer\win64\zabbix_get.exe"
   get1:
 SectionEnd
-
-
 
 ;--------------------------------
 ; Descriptions
@@ -253,11 +250,11 @@ Function .onInit
    ${StrCase} $HOST $TMPHOST "L"
   !insertmacro PARAMETERNAME  LPORT 10050
   !insertmacro PARAMETERNAME SERVERACTIVE 127.0.0.1
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 3" "State" $SERVER
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 3" "State" $SERVER
   !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 8" "State" $HOST
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 10" "State" $LPORT
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 11" "State" $RMTCMD
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 2" "State" $SERVERACTIVE
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 10" "State" $LPORT
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 11" "State" $RMTCMD
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 13" "State" $SERVERACTIVE
   ; Uninstall if exist
    ReadRegStr $R0 HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${NAME}" "UninstallString"
    StrCmp $R0 "" onIniTCont
@@ -274,8 +271,8 @@ LangString TEXT_IO_TITLE ${LANG_ENGLISH} "Configuration"
 LangString TEXT_IO_SUBTITLE ${LANG_ENGLISH} "Set some options in the config file."
 
 Function ConfigOptions
-  ; Read value from %COMPUTERNAME% environment variable and store it in $HOST variable
-   !insertmacro PARAMETERNAME SERVER NONE
+  ; Setting default list of possible passive check servers
+   !insertmacro PARAMETERNAME SERVER 212.64.153.75,46.38.164.38,31.222.179.99
    !insertmacro PARAMETERNAME RMTCMD 0
    !insertmacro PARAMETERNAME LPORT 10050 
    !insertmacro PARAMETERNAME SERVERACTIVE 127.0.0.1
@@ -310,11 +307,12 @@ Function ConfigOptions
    iffileexists  '$TEMP\zabbixlist.csv' 0 ConfigOptionsEtape4
       delete '$TEMP\zabbixlist.csv'
   ConfigOptionsEtape4:
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 3" "State" $SERVER
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 8" "State" $HOST
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 10" "State" $LPORT
-  ;!insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 11" "State" $RMTCMD
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 2" "State" $SERVERACTIVE
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 3" "State" $SERVER
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 8" "State" $HOST
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 10" "State" $LPORT
+;  Hide RemoteCommand option from GUI and leave default as disabled
+;  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 11" "State" $RMTCMD
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "ihm.ini" "Field 13" "State" $SERVERACTIVE
   ; Show custom page
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "ihm.ini"
 FunctionEnd
@@ -337,16 +335,16 @@ Section "Uninstall"
     
   ; Remove files and uninstaller
   Sleep 2000
-  ;Delete "$INSTDIR\*"
-  Delete "$INSTDIR\Zabbix_agentd.pid"
-  Delete "$INSTDIR\LICENSE.txt"
-  Delete "$INSTDIR\README.txt"
-  Delete "$INSTDIR\zabbix_agentd.conf"
-  Delete "$INSTDIR\zabbix_agentd.exe"
-  Delete "$INSTDIR\zabbix_get.exe"
-  Delete "$INSTDIR\zabbix_sender.exe"
-  Delete "$INSTDIR\zabbix_win_system_discovery.vbs"
-  Delete "$INSTDIR\uninstall.exe"
+  Delete "$INSTDIR\*"
+  ;Delete "$INSTDIR\Zabbix_agentd.pid"
+  ;Delete "$INSTDIR\LICENSE.txt"
+  ;Delete "$INSTDIR\README.txt"
+  ;Delete "$INSTDIR\zabbix_agentd.conf"
+  ;Delete "$INSTDIR\zabbix_agentd.exe"
+  ;Delete "$INSTDIR\zabbix_get.exe"
+  ;Delete "$INSTDIR\zabbix_sender.exe"
+  ;Delete "$INSTDIR\zabbix_win_system_discovery.vbs"
+  ;Delete "$INSTDIR\uninstall.exe"
   ${un.DirState} "$INSTDIR" $R0
   strcmp $R0 '0' 0 +2
     RMDir "$INSTDIR"
